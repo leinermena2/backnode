@@ -60,7 +60,7 @@ const listController = {
             
          
             const query = 'INSERT INTO list (type_list_id, item_list, partner, description) VALUES (?, ?, ?, ?)';
-                db.query(query, [8, item.departamento, null, "Departamentos Colombianos"], (error, result) => {
+                db.query(query, [1, item.departamento, null, "Departamentos Colombianos"], (error, result) => {
                 if (error) {
 
                     console.log("este es el id",error)
@@ -69,7 +69,7 @@ const listController = {
                     let citys = item.ciudades;
                     citys.map(ciudadesC => { 
                         const query = 'INSERT INTO list (type_list_id, item_list, partner, description) VALUES (?, ?, ?, ?)';
-                        db.query(query, [9, ciudadesC, idInsert, "Esta ciudad pertenece al Departamento "+item.departamento], (error, result) => {
+                        db.query(query, [2, ciudadesC, idInsert, "Esta ciudad pertenece al Departamento "+item.departamento], (error, result) => {
                         if (error) {
         
                         } else {

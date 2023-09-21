@@ -41,6 +41,8 @@ app.get('/api/getListByPartner/:partner', listController.getByPartner);
 //CLIENTES
 //Save Clients
 app.post('/api/saveNewClient', clientsController.createClient)
+//show all clients 
+app.get('/api/clientsView', clientsController.getAllClients)
 
 
 
