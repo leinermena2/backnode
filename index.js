@@ -5,7 +5,7 @@ const mysqlConnection = require('./db');
 
 const app = express();
 app.use(express.json());
-const port = 3000;
+const port = 4001;
 
 
 app.use(cors({
@@ -19,6 +19,9 @@ const rolesController = require('./controllers/getRolesController');
 const userController = require('./controllers/userController');
 const listController = require('./controllers/listController')
 const clientsController = require('./controllers/clientsController')
+const progressHistoryController = require('./controllers/progressHistoryController');
+const MailController = require('./controllers/MailController');
+
 
 //ruta para obtener roles
 app.get('/api/roles', rolesController.getAll);
@@ -36,6 +39,8 @@ app.post('/api/loginUser', userController.loginUser);
 app.get('/api/getListByTypeList/:typeList', listController.getByTypeList);
 //Get lista apartir del partner
 app.get('/api/getListByPartner/:partner', listController.getByPartner);
+//Obtener todas las listas apartir de varios tipos de lista
+app.post('/api/getAllListByTypes/', listController.getAllByTypes);
 
 
 //CLIENTES
@@ -43,8 +48,16 @@ app.get('/api/getListByPartner/:partner', listController.getByPartner);
 app.post('/api/saveNewClient', clientsController.createClient)
 //show all clients 
 app.get('/api/clientsView', clientsController.getAllClients)
+// agregar infomracion al historial de progreso
+app.post('/api/saveNewProgressHistory', progressHistoryController.createProgressHistory)
+// Visualizar historial proceso cliente
+app.get('/api/getProcessByClient/:id', progressHistoryController.getProgressHistoryByClient)
 
 
+//MAILS
+app.post('/api/sendRequestCode', MailController.sendRequestCode)
+app.post('/api/sendResponseCredit', MailController.sendResponseCredit)
+app.post('/api/sendMessage', MailController.sendMessage)
 
 
 //Prueba de insercion de datos

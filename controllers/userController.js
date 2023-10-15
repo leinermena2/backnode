@@ -30,77 +30,84 @@ const create = (req, res) => {
   const userReturn = { name, last_name, age, email, role_id };
 
   User.findByEmail(email, (error, result) => {
-    if (result === undefined || result.length === 0) {
-      User.create(user, (error, result) => {
-        if (error !== null) {
-          return res
-            .status(500)
-            .json({
-              message: "Error al crear el usuario",
-              status: "error" + JSON.stringify(error),
-            });
-        }
-        const token = jwt.sign(userReturn, "secret_key");
-        return res
-          .status(201)
-          .json({
-            message: "Usuario creado exitosamente",
-            status: "success",
-            token,
-          });
+    if (error) {
+      return res.status(500).json({
+        message: "Error al verificar el correo",
+        status: "error" + JSON.stringify(error),
       });
-    } else {
-      return res
-        .status(403)
-        .json({
-          message: "El correo que ingresado ya pertenece a un usuario",
-          status: "error",
-        });
     }
+
+    if (result && result.length > 0) {
+      return res.status(403).json({
+        message: "El correo que ingresaste ya pertenece a un usuario",
+        status: "error",
+      });
+    }
+
+    User.create(user, (error, createdUser) => {
+      if (error) {
+        return res.status(500).json({
+          message: "Error al crear el usuario",
+          status: "error" + JSON.stringify(error),
+        });
+      }
+
+      const id = createdUser.id; // Obtén el ID del usuario creado
+      const userReturn = { name, last_name, age, email, role_id, id };
+      const token = jwt.sign({ ...userReturn, id: id }, "secret_key");
+
+      return res.status(201).json({
+        message: "Usuario creado exitosamente",
+        status: "success",
+        token,
+        id, // Incluye el ID del usuario en la respuesta
+      });
+    });
   });
 };
+
 
 const loginUser = (req, res) => {
   const { email, password } = req.body;
 
   User.findByEmail(email, (error, result) => {
+    if (error) {
+      return res.status(500).json({ message: "Error al verificar el correo", status: "error", token: "" });
+    }
+
     if (result === undefined || result.length === 0) {
-      return res
-        .status(403)
-        .json({ message: "El correo electronico no esta registrado", status: "error", token: "" });
+      return res.status(403).json({ message: "El correo electrónico no está registrado", status: "error", token: "", userId: null });
     } else {
       if (result[0].password === password) {
-        const token = jwt.sign(
-          {
-            id: result[0].id,
-            name: result[0].name,
-            last_name: result[0].last_name,
-            age: result[0].age,
-            email: result[0].email,
-            role_id: result[0].role_id,
-          },
-          "secret_key"
-        );
-        return res
-          .status(201)
-          .json({
-            message: "Inicio de sesion exitoso",
-            status: "success",
-            token,
-          });
+        const userPayload = {
+          id: result[0].id,
+          name: result[0].name,
+          last_name: result[0].last_name,
+          age: result[0].age,
+          email: result[0].email,
+          role_id: result[0].role_id,
+        };
+
+        const token = jwt.sign(userPayload, "secret_key");
+
+        return res.status(201).json({
+          message: "Inicio de sesión exitoso",
+          status: "success",
+          token,
+          userId: userPayload.id // Incluye el ID del usuario en la respuesta
+        });
       } else {
-        return res
-          .status(403)
-          .json({
-            message: "La contraseña proporcionada no es correcta",
-            status: "error",
-            token: ""
-          });
+        return res.status(403).json({
+          message: "La contraseña proporcionada no es correcta",
+          status: "error",
+          token: "",
+          userId: null
+        });
       }
-     
     }
   });
 };
+
 
 module.exports = {
   getAll,

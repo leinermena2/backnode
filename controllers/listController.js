@@ -29,6 +29,22 @@ const listController = {
       });
   },
 
+  getAllByTypes (req, res) { 
+    const types = Object.keys(req.body.types);
+    const newTypes = []
+    
+    for (let i = 0; i < types.length; i++) {
+      newTypes.push(parseInt(types[i]));
+    }
+    List.findByTypesList(newTypes, (err, results) => {
+      if (err) {
+        console.error('Error al obtener la lista:', err);
+        return res.status(500).json({ error: 'Error al obtener la lista' });
+      }
+      res.json(results);
+    })
+  
+  },
   getByPartner(req, res) {
     const partner = req.params.partner;
     List.findByPartner(partner, (err, results) => {
